@@ -37,5 +37,7 @@ function Invoke-PlexParse{
             $out | add-member noteproperty "Summary" $i.summary
             $results += $out
             }
-$results | export-csv -path ($outputFileName) -notype
+   
+    Write-output "Publishing $($results.Count) items to file $outputFileName"
+    $results | export-csv -path ($outputFileName) -notype
 }
