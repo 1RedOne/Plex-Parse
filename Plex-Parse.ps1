@@ -41,3 +41,44 @@ function Invoke-PlexParse{
     Write-output "Publishing $($results.Count) items to file $outputFileName"
     $results | export-csv -path ($outputFileName) -notype
 }
+
+Function Invoke-PlexParseHelper{
+    param($plexBaseUrl = "http://127.0.0.1:32400")
+    
+    $sectionResult = invoke-webrequest "$plexBaseUrl/library/sections/"
+
+    if($null -eq $sectionResult){
+        throw "Failed to retrieve plex library info from $plexBaseUrl, please verify connectivity"
+    }
+    
+    $sectionParse = [xml]($sectionResult)
+    
+    $directories = $sectionParse.MediaContainer.Directory
+    
+    "Found $($directories.Count) directories"
+    
+    $sections = @{}
+
+    #populate hashTable with sections
+    foreach ($dir in $directories){
+        $sections[$dir.title] = $dir.Location.id
+    }
+    
+    "Which would you like to retrieve?"
+    $sections 
+    
+    $userSection = read-host "Type Section name"
+    
+    $locations = $sections[$userSection]
+    
+    "Retrieving location info entries $($locations -join ",") for $userSection"
+    
+    foreach($loc in $locations){
+       $sectionurl = "$plexBaseUrl/library/sections/$loc/all/"
+       "retrieving $sectionurl"
+       $sectionResult = iwr $sectionurl -OutFile .\Library.xml
+    
+       $outCsvName = [string]::Join($userSection, "_", $loc, ".csv")
+       Invoke-PlexParse Library.xml -outputFileName $outCsvName
+    }
+}
