@@ -18,6 +18,60 @@ Sometimes it is easier, to browse and manipulate your plex library section when 
 2.  A Plex Media Server!
 
 ### How to Use
+
+You can use a more manual approach as outlined in section two, or try the new `Invoke-PlexParseHelper` function to guide you through the process.
+
+A. Guided Approach
+B. Manual Approach
+
+#### Guided Approach
+
+This approach uses the new `Invoke-PlexParseHelper` to automate the steps for you. It will contact a server, retrieve a human readable list of all sections and their corresponding IDs, then prompt the user to select the section they'd like to parse to CSV.  This is accomplished with a text base UI. 
+
+Next the function will enumerate all Location directories that make up the Plex Section, and then call `Invoke-PlexParse` to convert each XML table into usable .csv files, individually named.  Excellent for batch operation.
+
+1. Download the .ps1 file `Plex-Parse.ps1`
+2. 'dotSource' it to load it into memory `. .\Plex-Parse.ps1`
+3. Run the command `Invoke-PlexParseHelper`, and optionally provide the Base plex URL for your server.  The default behavior is to assume local plex server at localhost:32400
+
+```powershell
+Invoke-PlexParseHelper 
+```
+
+This will retrieve a list of the the available sections and prompt you to type the name of the section you'd like to retrieve.
+
+```powershell
+
+Found 10 directories
+Which would you like to retrieve?
+
+Name                           Value                                                                                                                                   
+----                           -----                                                                                                                                   
+YouTubeDL                      15                                                                                                                                      
+Music Videos                   11                                                                                                                                      
+Movies                         {23, 24, 25, 17...}                                                                                                                     
+Learning                       29                                                                                                                                      
+TV Shows                       {30, 8}                                                                                                                                 
+Kids Shows                     {31, 21}                                                                                                                                
+Relaxation                     {19, 16}                                                                                                                                
+Holiday                        18                                                                                                                                      
+Anime                          {26, 20, 14}                                                                                                                            
+Home Movies                    10
+
+Type Section name: _
+```
+
+To retrieve, for example, the Music Videos section, then you would type 'Music Videos', and the following action takes place.
+
+The Section which may be made of multiple Location Directories is enumerated and parsed into distinct CSV files for later consumption.
+
+```powershell
+Music Videos
+Retrieving location info entries 11 for Music Videos
+retrieving http://127.0.0.1:32400/library/sections/11/all/
+Publishing 45 items to file .\Music Videos_11_Music Videos.csv
+```
+#### Manual Approach
 1.  Open http://(your plex media server):32400/library/sections/
 2.  Find the location id of the library location that you are interested in exporting.  For example:
 
